@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     //Gives access to input action map and character controller respectively
-    private PlayerControls controls;
+    //private PlayerControls controls;
     private CharacterController controller;
 
     //Values in relation to character movement
@@ -29,92 +29,36 @@ public class PlayerMovement : MonoBehaviour
 
     private void Awake()
     {
-        controls = new PlayerControls();
         controller = GetComponent<CharacterController>();
         cam.fieldOfView = walkFov;
-
-        controls.Gameplay.Enable();
-
-        //controls.Gameplay.Movement.started += PlayerMove;
-        
-
-        controls.Gameplay.Sprint.performed += ctx => SprintPressed();
-        controls.Gameplay.Sprint.canceled += ctx => SprintReleased();
-        controls.Gameplay.Movement.performed += ctx => PlayerMove();
     }
 
     private void Update()
     {
-        
-        //Gravity();
         PlayerMove();
-        //Jump();
-        //Sprint();
-    }
-
-    public void Gravity()
-    {
-        isGrounded = Physics.CheckSphere(ground.position, distToGround, groundMask);
-
-        if(isGrounded && velocity.y < 0)
-        {
-            velocity.y = -1f;
-        }
-
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
     }
 
     public void PlayerMove()
     {
-        //Debug.Log(ctx);
-        move = controls.Gameplay.Movement.ReadValue<Vector2>();
-
+        Debug.Log(move.x);
         Vector3 movement = (move.y * transform.forward) + (move.x * transform.right);
         controller.Move(movement * moveSpeed * Time.deltaTime);
     }
 
-    public void Jump(InputAction.CallbackContext ctx)
+    public void OnMove(InputAction.CallbackContext context)
     {
-        Debug.Log("Here JUMP");
-        if (controls.Gameplay.Jump.triggered && isGrounded)
-        {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }
-    }
-
-    private void SprintPressed()
-    {
-        isSprinting = true;
-    }
-
-    private void SprintReleased()
-    {
-        isSprinting = false;
-    }
-
-    private void Sprint()
-    {
-        if (isSprinting)
-        {
-            moveSpeed = sprintSpeed;
-            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, sprintFov, 5 * Time.deltaTime);
-        }
-        else
-        {
-            moveSpeed = 6f;
-            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, walkFov, 5 * Time.deltaTime);
-        }
+        Debug.Log(context.ReadValue<Vector2>());
+        move = context.ReadValue<Vector2>();
     }
 
     private void OnEnable()
     {
-        controls.Enable();
+        //controls.Enable();
     }
 
     private void OnDisable()
     {
-        controls.Disable();
+        //controls.Disable();
     }
 
 }
