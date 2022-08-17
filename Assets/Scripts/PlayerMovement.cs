@@ -8,7 +8,7 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController controller;
 
     //Values in relation to character movement
-    private float moveSpeed = 6f;
+    private float moveSpeed = 12f;
     private float sprintSpeed = 12f;
     private Vector3 velocity;
     [SerializeField]  private float gravity = -9.81f;

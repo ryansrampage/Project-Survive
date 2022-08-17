@@ -14,7 +14,6 @@ public class SkyboxExtendedHub : EditorWindow
 
     Color bannerColor;
     string bannerText;
-    string helpURL;
     static SkyboxExtendedHub window;
 
     [MenuItem("Window/BOXOPHOBIC/Skybox Cubemap Extended/Hub", false, 1070)]
@@ -47,20 +46,62 @@ public class SkyboxExtendedHub : EditorWindow
 
         bannerColor = new Color(0.95f, 0.61f, 0.46f);
         bannerText = "Skybox Cubemap Extended " + bannerVersion;
-        helpURL = "https://docs.google.com/document/d/1ughK58Aveoet6hpdfYxY5rzkOcIkjEoR0VdN2AhngSc/edit#heading=h.gqix7il7wlwd";
     }
 
     void OnGUI()
     {
-        StyledGUI.DrawWindowBanner(bannerColor, bannerText, helpURL);
+        DrawToolbar();
+        StyledGUI.DrawWindowBanner(bannerColor, bannerText);
 
         GUILayout.BeginHorizontal();
-        GUILayout.Space(20);
+        GUILayout.Space(15);
 
         EditorGUILayout.HelpBox("The included shader is compatible by default with Standard and Universal Render Pipelines!", MessageType.Info, true);
 
         GUILayout.Space(13);
         GUILayout.EndHorizontal();
+    }
+
+    void DrawToolbar()
+    {
+        var GUI_TOOLBAR_EDITOR_WIDTH = this.position.width / 4.0f + 1;
+
+        var styledToolbar = new GUIStyle(EditorStyles.toolbarButton)
+        {
+            alignment = TextAnchor.MiddleCenter,
+            fontStyle = FontStyle.Normal,
+            fontSize = 11,
+        };
+
+        GUILayout.Space(1);
+        GUILayout.BeginHorizontal();
+
+        if (GUILayout.Button("Discord Server", styledToolbar, GUILayout.Width(GUI_TOOLBAR_EDITOR_WIDTH)))
+        {
+            Application.OpenURL("https://discord.com/invite/znxuXET");
+        }
+        GUILayout.Space(-1);
+
+        if (GUILayout.Button("Documentation", styledToolbar, GUILayout.Width(GUI_TOOLBAR_EDITOR_WIDTH)))
+        {
+            Application.OpenURL("https://docs.google.com/document/d/1ughK58Aveoet6hpdfYxY5rzkOcIkjEoR0VdN2AhngSc/edit#heading=h.gqix7il7wlwd");
+        }
+        GUILayout.Space(-1);
+
+        if (GUILayout.Button("Changelog", styledToolbar, GUILayout.Width(GUI_TOOLBAR_EDITOR_WIDTH)))
+        {
+            Application.OpenURL("https://docs.google.com/document/d/1ughK58Aveoet6hpdfYxY5rzkOcIkjEoR0VdN2AhngSc/edit#heading=h.1rbujejuzjce");
+        }
+        GUILayout.Space(-1);
+
+        if (GUILayout.Button("Write A Review", styledToolbar, GUILayout.Width(GUI_TOOLBAR_EDITOR_WIDTH)))
+        {
+            Application.OpenURL("https://assetstore.unity.com/packages/vfx/shaders/free-skybox-extended-shader-107400#reviews");
+        }
+        GUILayout.Space(-1);
+
+        GUILayout.EndHorizontal();
+        GUILayout.Space(4);
     }
 }
 
