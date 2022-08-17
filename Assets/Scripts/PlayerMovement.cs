@@ -40,14 +40,14 @@ public class PlayerMovement : MonoBehaviour
 
     public void PlayerMove()
     {
-        Debug.Log(move.x);
+        //Debug.Log(move.x);
         Vector3 movement = (move.y * transform.forward) + (move.x * transform.right);
         controller.Move(movement * moveSpeed * Time.deltaTime);
     }
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        Debug.Log(context.ReadValue<Vector2>());
+        //Debug.Log(context.ReadValue<Vector2>());
         move = context.ReadValue<Vector2>();
     }
 

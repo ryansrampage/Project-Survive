@@ -29,10 +29,11 @@ public class PlayerLook : MonoBehaviour
 
     private void Look()
     {
+        Debug.Log(controls.Gameplay.Look.ReadValue<Vector2>());
         mouseLook = controls.Gameplay.Look.ReadValue<Vector2>();
 
-        float mouseX = mouseLook.x * mouseSens * Time.deltaTime;
-        float mouseY = mouseLook.y * mouseSens * Time.deltaTime;
+        float mouseX = mouseLook.x * mouseSens;
+        float mouseY = mouseLook.y * mouseSens;
 
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
