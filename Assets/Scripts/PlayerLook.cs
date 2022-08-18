@@ -14,8 +14,8 @@ public class PlayerLook : MonoBehaviour
     //Sprint FOV Changes
     private PlayerMovement playerMovement;
     private Camera cam;
-    private float walkFOV = 90f;
-    private float sprintFOV = 110f;
+    [SerializeField] private float walkFOV = 90f;
+    [SerializeField] private float sprintFOV = 110f;
 
     private void Awake()
     {

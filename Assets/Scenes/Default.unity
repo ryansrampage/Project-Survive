@@ -603,6 +603,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mouseSens: 0.3
   playerBody: {fileID: 1031567682}
+  walkFOV: 90
+  sprintFOV: 100
 --- !u!1 &1031567679
 GameObject:
   m_ObjectHideFlags: 0
