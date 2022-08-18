@@ -5,21 +5,21 @@ using UnityEngine.InputSystem;
 
 public class PlayerLook : MonoBehaviour
 {
-    private PlayerControls controls;
+    //Handle camera rotation
     [SerializeField] private float mouseSens = 100f;
+    [SerializeField] private Transform playerBody;
     private Vector2 mouseLook;
     private float xRotation;
-    [SerializeField] private Transform playerBody;
+
+    //Sprint FOV Changes
+    private PlayerMovement playerMovement;
+    private Camera cam;
+    
 
     private void Awake()
     {
-        controls = new PlayerControls();
         Cursor.lockState = CursorLockMode.Locked;
-    }
-
-    private void Update()
-    {
-        //Look();
+        playerMovement = GetComponent<PlayerMovement>();
     }
 
     private void LateUpdate()
@@ -29,9 +29,6 @@ public class PlayerLook : MonoBehaviour
 
     private void Look()
     {
-        Debug.Log(controls.Gameplay.Look.ReadValue<Vector2>());
-        mouseLook = controls.Gameplay.Look.ReadValue<Vector2>();
-
         float mouseX = mouseLook.x * mouseSens;
         float mouseY = mouseLook.y * mouseSens;
 
@@ -42,13 +39,16 @@ public class PlayerLook : MonoBehaviour
         playerBody.Rotate(Vector3.up * mouseX);
     }
 
-    private void OnEnable()
+    private void SprintFOV()
     {
-        controls.Enable();
+        if (playerMovement.isSprinting)
+        {
+
+        }
     }
 
-    private void OnDisable()
+    public void OnLook(InputAction.CallbackContext context)
     {
-        controls.Disable();
+        mouseLook = context.action.ReadValue<Vector2>();
     }
 }

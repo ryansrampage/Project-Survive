@@ -8,57 +8,84 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController controller;
 
     //Values in relation to character movement
-    private float moveSpeed = 12f;
-    private float sprintSpeed = 12f;
-    private Vector3 velocity;
-    [SerializeField]  private float gravity = -9.81f;
-    private Vector2 move;
-    private float jumpHeight = 2.4f;
-    public bool isSprinting;
+    [SerializeField] private float moveSpeed = 10f;
+    [SerializeField] private float walkspeed = 10f;
+    [SerializeField] private float sprintSpeed = 20f;
+    [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float jumpHeight = 2.4f;
 
-    //Variables in relation to if the character is grounded or not
-    public Transform ground;
-    public float distToGround = 1.3f;
-    public LayerMask groundMask;
+    //Handles staying grounded and sprinting
+    private Vector3 velocity;
+    public bool isSprinting;
     public bool isGrounded;
 
-    //Camera values
-    public Camera cam;
-    public float walkFov = 90f;
-    public float sprintFov = 105f;
+    //Event based input values
+    private Vector2 move;
+    private float jump;
+    private float aim;
+    private float sprint;
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
-        cam.fieldOfView = walkFov;
     }
 
     private void Update()
     {
         PlayerMove();
+        Gravity();
     }
 
-    public void PlayerMove()
+    private void PlayerMove()
     {
-        //Debug.Log(move.x);
         Vector3 movement = (move.y * transform.forward) + (move.x * transform.right);
         controller.Move(movement * moveSpeed * Time.deltaTime);
     }
 
+    private void Gravity()
+    {
+        isGrounded = controller.isGrounded;
+        
+        //Snap player to floor
+        if(isGrounded && velocity.y < 0)
+        {
+            velocity.y = -1f;
+        }
+
+        //Calculate and apply, to characater, gravity every frame
+        velocity.y += gravity * Time.deltaTime;
+        controller.Move(velocity * Time.deltaTime);
+    }
+
+    private void Sprint()
+    {
+        if (sprint > 0)
+        {
+            isSprinting = true;
+        }
+        else
+        {
+            isSprinting = false;
+        }
+    }
+
     public void OnMove(InputAction.CallbackContext context)
     {
-        //Debug.Log(context.ReadValue<Vector2>());
         move = context.ReadValue<Vector2>();
     }
 
-    private void OnEnable()
+    public void OnJump(InputAction.CallbackContext context)
     {
-        //controls.Enable();
+        jump = context.ReadValue<float>();
     }
 
-    private void OnDisable()
+    public void OnSprint(InputAction.CallbackContext context)
     {
-        //controls.Disable();
+        sprint = context.ReadValue<float>();
     }
 
+    public void OnAim(InputAction.CallbackContext context)
+    {
+        aim = context.ReadValue<float>();
+    }
 }
