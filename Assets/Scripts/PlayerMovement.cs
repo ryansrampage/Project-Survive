@@ -4,7 +4,6 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     //Gives access to input action map and character controller respectively
-    //private PlayerControls controls;
     private CharacterController controller;
 
     //Values in relation to character movement
@@ -34,6 +33,8 @@ public class PlayerMovement : MonoBehaviour
     {
         PlayerMove();
         Gravity();
+        Jump();
+        Sprint();
     }
 
     private void PlayerMove()
@@ -44,10 +45,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Gravity()
     {
-        isGrounded = controller.isGrounded;
-        
         //Snap player to floor
-        if(isGrounded && velocity.y < 0)
+        if(controller.isGrounded && velocity.y < 0)
         {
             velocity.y = -1f;
         }
@@ -57,15 +56,25 @@ public class PlayerMovement : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
     }
 
+    private void Jump()
+    {
+        if(controller.isGrounded && jump > 0)
+        {
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
+    }
+
     private void Sprint()
     {
         if (sprint > 0)
         {
             isSprinting = true;
+            moveSpeed = sprintSpeed;
         }
         else
         {
             isSprinting = false;
+            moveSpeed = walkspeed;
         }
     }
 
@@ -81,6 +90,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnSprint(InputAction.CallbackContext context)
     {
+        Debug.Log(context.ReadValue<float>());
         sprint = context.ReadValue<float>();
     }
 

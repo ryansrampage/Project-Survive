@@ -14,17 +14,25 @@ public class PlayerLook : MonoBehaviour
     //Sprint FOV Changes
     private PlayerMovement playerMovement;
     private Camera cam;
-    
+    private float walkFOV = 90f;
+    private float sprintFOV = 110f;
 
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        playerMovement = GetComponent<PlayerMovement>();
+        cam = GetComponent<Camera>();
+        playerMovement = GetComponentInParent<PlayerMovement>();
+    }
+
+    private void Start()
+    {
+        cam.fieldOfView = walkFOV;
     }
 
     private void LateUpdate()
     {
         Look();
+        SprintFOV();
     }
 
     private void Look()
@@ -43,7 +51,11 @@ public class PlayerLook : MonoBehaviour
     {
         if (playerMovement.isSprinting)
         {
-
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, sprintFOV, 5 * Time.deltaTime);
+        }
+        else
+        {
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, walkFOV, 5 * Time.deltaTime);
         }
     }
 
