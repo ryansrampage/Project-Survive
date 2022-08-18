@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class WeaponMovement : MonoBehaviour
 {
-    private PlayerControls controls;
 
     private void Awake()
     {
-        controls = new PlayerControls();
+        
     }
 
     // Start is called before the first frame update
@@ -21,15 +20,5 @@ public class WeaponMovement : MonoBehaviour
     void Update()
     {
         
-    }
-
-    private void OnEnable()
-    {
-        controls.Enable();
-    }
-
-    private void OnDisable()
-    {
-        controls.Disable();
     }
 }

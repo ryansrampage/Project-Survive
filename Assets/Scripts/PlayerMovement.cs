@@ -16,7 +16,6 @@ public class PlayerMovement : MonoBehaviour
     //Handles staying grounded and sprinting
     private Vector3 velocity;
     public bool isSprinting;
-    public bool isGrounded;
 
     //Event based input values
     private Vector2 move;
@@ -66,7 +65,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Sprint()
     {
-        if (sprint > 0)
+        if (sprint > 0 && move.y > 0)
         {
             isSprinting = true;
             moveSpeed = sprintSpeed;
@@ -90,12 +89,16 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnSprint(InputAction.CallbackContext context)
     {
-        Debug.Log(context.ReadValue<float>());
         sprint = context.ReadValue<float>();
     }
 
     public void OnAim(InputAction.CallbackContext context)
     {
         aim = context.ReadValue<float>();
+    }
+
+    public bool isMoving()
+    {
+        return move.x != 0 || move.y != 0;
     }
 }

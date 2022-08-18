@@ -49,7 +49,7 @@ public class PlayerLook : MonoBehaviour
 
     private void SprintFOV()
     {
-        if (playerMovement.isSprinting)
+        if (playerMovement.isSprinting && playerMovement.isMoving())
         {
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, sprintFOV, 5 * Time.deltaTime);
         }
