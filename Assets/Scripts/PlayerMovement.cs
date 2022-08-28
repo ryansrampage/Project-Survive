@@ -65,7 +65,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Sprint()
     {
-        if (sprint > 0 && move.y > 0)
+        if (sprint > 0 && move.y > 0 && controller.isGrounded)
         {
             isSprinting = true;
             moveSpeed = sprintSpeed;

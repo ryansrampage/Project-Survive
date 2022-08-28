@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
-    private PlayerControls controls;
+
 
     private Vector3 originalPosition;
     public Vector3 aimPosition;
@@ -13,9 +13,7 @@ public class Weapon : MonoBehaviour
 
     private void Awake()
     {
-        controls = new PlayerControls();
-        controls.Gameplay.Aim.performed += ctx => isAiming = true;
-        controls.Gameplay.Aim.canceled += ctx => isAiming = false;
+
     }
 
     // Start is called before the first frame update
@@ -42,13 +40,4 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    private void OnEnable()
-    {
-        controls.Enable();
-    }
-
-    private void OnDisable()
-    {
-        controls.Disable();
-    }
 }

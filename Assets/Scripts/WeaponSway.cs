@@ -5,8 +5,6 @@ using UnityEngine.InputSystem;
 
 public class WeaponSway : MonoBehaviour
 {
-    private PlayerControls controls;
-
     [Header("Rotation")]
     public float rotationAmount = 2f;
     public float rotationMaxAmount = 4f;
@@ -35,9 +33,7 @@ public class WeaponSway : MonoBehaviour
     
     private void Awake()
     {
-        controls = new PlayerControls();
-        controls.Gameplay.Aim.performed += ctx => isAiming = true;
-        controls.Gameplay.Aim.canceled += ctx => isAiming = false;
+
     }
 
     private void Start()
@@ -58,7 +54,6 @@ public class WeaponSway : MonoBehaviour
     private void CalculateSway()
     {
         //Get the mouse data
-        mouseLook = controls.Gameplay.Look.ReadValue<Vector2>();
         mouseX = mouseLook.x;
         mouseY = mouseLook.y;
     }
@@ -99,15 +94,5 @@ public class WeaponSway : MonoBehaviour
             rotationMaxAmount = 4f;
             positionMaxAmount = 0.006f;
         }
-    }
-
-    private void OnEnable()
-    {
-        controls.Enable();
-    }
-
-    private void OnDisable()
-    {
-        controls.Disable();
     }
 }
