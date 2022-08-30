@@ -5,39 +5,68 @@ using UnityEngine.InputSystem;
 
 public class RigidBodyMovement : MonoBehaviour
 {
+    [Header("Movement")]
+    [SerializeField] private float walkSpeed;
+    [SerializeField] private float sprintSpeed;
+    [SerializeField] private float groundDrag;
+    private Vector3 moveDirection;
+    private float moveSpeed;
 
-    [SerializeField] private float moveSpeed;
+    [Header("Jumping")]
+    [SerializeField] private float jumpForce;
+    [SerializeField] private float airMultiplier;
 
-    public float groundDrag;
+    [Header("Crouching")]
+    [SerializeField] private float crouchSpeed;
+    [SerializeField] private float crouchYScale;
+    private float startYScale;
 
-    public float jumpForce;
-    public float airMultiplier;
-
-    public float playerHeight;
+    [Header("Grounding")]
+    [SerializeField] private float playerHeight;
     public LayerMask groundMask;
     public bool isGrounded;
 
+    [Header("Oritentation")]
     [SerializeField] private Transform orientation;
-    private Vector3 moveDirection;
-
+    
+    //Internal event based movement variables
     private Vector2 move;
     private float jump;
+    private float sprint;
 
-    Rigidbody rb;
+    //RigidBody
+    private Rigidbody rb;
+
+    [Header("Movement State")]
+    public MovementState state;
+
+    public enum MovementState
+    {
+        walking,
+        sprinting,
+        air
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+
+        //Set initial scale (For crouching)
+        startYScale = transform.localScale.y;
     }
 
     private void Update()
     {
+        //Ground Check
         isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundMask);
 
+        //Run checks
         SpeedControl();
+        StateHandler();
 
+        //Handles drag
         if (isGrounded)
         {
             rb.drag = groundDrag;
@@ -53,6 +82,26 @@ public class RigidBodyMovement : MonoBehaviour
     {
         MovePlayer();
         Jump();
+    }
+
+    private void StateHandler()
+    {
+        //Potentially modify to update based on state instead of doing both in same statement
+
+        if (isGrounded && sprint > 0) //Sprinting
+        {
+            state = MovementState.sprinting;
+            moveSpeed = sprintSpeed;
+        }
+        else if (isGrounded) //Walking
+        {
+            state = MovementState.walking;
+            moveSpeed = walkSpeed;
+        }
+        else //In the Air
+        {
+            state = MovementState.air;
+        }
     }
 
     private void MovePlayer()
@@ -98,5 +147,15 @@ public class RigidBodyMovement : MonoBehaviour
     public void OnJump(InputAction.CallbackContext context)
     {
         jump = context.ReadValue<float>();
+    }
+
+    public void OnSprint(InputAction.CallbackContext context)
+    {
+        sprint = context.ReadValue<float>();
+    }
+
+    public float GetMoveSpeed()
+    {
+        return moveSpeed;
     }
 }
