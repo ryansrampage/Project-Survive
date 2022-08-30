@@ -11,9 +11,7 @@ public class RigidBodyMovement : MonoBehaviour
     public float groundDrag;
 
     public float jumpForce;
-    public float jumpCooldown;
     public float airMultiplier;
-    bool readyToJump;
 
     public float playerHeight;
     public LayerMask groundMask;
@@ -26,6 +24,7 @@ public class RigidBodyMovement : MonoBehaviour
     private float jump;
 
     Rigidbody rb;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -35,7 +34,7 @@ public class RigidBodyMovement : MonoBehaviour
 
     private void Update()
     {
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 1f, groundMask);
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundMask);
 
         SpeedControl();
 
@@ -53,13 +52,21 @@ public class RigidBodyMovement : MonoBehaviour
     void FixedUpdate()
     {
         MovePlayer();
+        Jump();
     }
 
     private void MovePlayer()
     {
         moveDirection = orientation.forward * move.y + orientation.right * move.x;
 
-        rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+        if (isGrounded)
+        {
+            rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+        }
+        else if (!isGrounded)
+        {
+            rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
+        }
     }
 
     private void SpeedControl()
@@ -75,9 +82,12 @@ public class RigidBodyMovement : MonoBehaviour
 
     private void Jump()
     {
-        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+        if (isGrounded && jump > 0)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
-        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        }
     }
 
     public void OnMove(InputAction.CallbackContext context)

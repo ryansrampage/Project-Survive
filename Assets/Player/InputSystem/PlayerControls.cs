@@ -208,7 +208,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""5bef959b-b626-4827-a561-f3a2ec49f00c"",
                     ""path"": ""<Gamepad>/leftStickPress"",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Controller"",
                     ""action"": ""Sprint"",
