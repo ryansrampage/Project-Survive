@@ -17,6 +17,6 @@ public class PlayerGUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        playerData.text = "Speed: " + playerMovement.GetMoveSpeed().ToString();
+        playerData.text = "Speed: " + playerMovement.GetRigidBody().velocity.magnitude;
     }
 }

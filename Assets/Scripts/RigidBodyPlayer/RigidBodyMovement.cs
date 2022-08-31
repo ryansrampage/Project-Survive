@@ -25,6 +25,11 @@ public class RigidBodyMovement : MonoBehaviour
     [SerializeField] private float playerHeight;
     public LayerMask groundMask;
     public bool isGrounded;
+    private bool crouchFloorSnap = false;
+
+    [Header("Slope Handler")]
+    [SerializeField] private float maxSlopeAngle;
+    private RaycastHit slopeHit;
 
     [Header("Oritentation")]
     [SerializeField] private Transform orientation;
@@ -33,6 +38,7 @@ public class RigidBodyMovement : MonoBehaviour
     private Vector2 move;
     private float jump;
     private float sprint;
+    private float crouch;
 
     //RigidBody
     private Rigidbody rb;
@@ -44,6 +50,8 @@ public class RigidBodyMovement : MonoBehaviour
     {
         walking,
         sprinting,
+        crouching,
+        aircrouch,
         air
     }
 
@@ -82,6 +90,7 @@ public class RigidBodyMovement : MonoBehaviour
     {
         MovePlayer();
         Jump();
+        Crouch();
     }
 
     private void StateHandler()
@@ -102,11 +111,32 @@ public class RigidBodyMovement : MonoBehaviour
         {
             state = MovementState.air;
         }
+
+        if (crouch > 0 && isGrounded) //Crouching
+        {
+            state = MovementState.crouching;
+            moveSpeed = crouchSpeed;
+        }
+        else if (crouch > 0 && !isGrounded) //Air crouching
+        {
+            state = MovementState.aircrouch;
+        }
     }
 
     private void MovePlayer()
     {
         moveDirection = orientation.forward * move.y + orientation.right * move.x;
+
+        //Player is on a slope
+        if (OnSlope())
+        {
+            rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
+
+            if (rb.velocity.y > 0)
+            {
+                rb.AddForce(Vector3.down * 80f, ForceMode.Force);
+            }
+        }
 
         if (isGrounded)
         {
@@ -116,6 +146,8 @@ public class RigidBodyMovement : MonoBehaviour
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
         }
+
+        rb.useGravity = !OnSlope();
     }
 
     private void SpeedControl()
@@ -139,6 +171,50 @@ public class RigidBodyMovement : MonoBehaviour
         }
     }
 
+    private void Crouch()
+    {
+        if (crouch > 0)
+        {
+            transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
+
+            //Snap player to floor once only if they are grounded when initiating the crouch
+            if (!crouchFloorSnap && isGrounded)
+            {
+                rb.AddForce(Vector3.down * 10f, ForceMode.Impulse);
+                crouchFloorSnap = true;
+            }
+            else if (!crouchFloorSnap && !isGrounded) //Prevents a snap upon contact with the floor if player initates crouch in the air
+            {
+                crouchFloorSnap = true;
+            }
+            
+        }
+        else
+        {
+            transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
+
+            //Reset the crouch snap so they don't get floating crouches
+            crouchFloorSnap = false;
+        }
+    }
+
+    private bool OnSlope()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
+        {
+            float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            return angle < maxSlopeAngle && angle != 0;
+        }
+
+        return false;
+    }
+
+    private Vector3 GetSlopeMoveDirection()
+    {
+        return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
+    }
+
+    //Input Event Functions ----------------------------------------
     public void OnMove(InputAction.CallbackContext context)
     {
         move = context.ReadValue<Vector2>();
@@ -154,8 +230,19 @@ public class RigidBodyMovement : MonoBehaviour
         sprint = context.ReadValue<float>();
     }
 
+    public void OnCrouch(InputAction.CallbackContext context)
+    {
+        crouch = context.ReadValue<float>();
+    }
+
+    //Getters & Setters -- Add when necessary
     public float GetMoveSpeed()
     {
         return moveSpeed;
+    }
+
+    public Rigidbody GetRigidBody()
+    {
+        return rb;
     }
 }
