@@ -30,10 +30,11 @@ public class RigidBodyMovement : MonoBehaviour
     [Header("Slope Handler")]
     [SerializeField] private float maxSlopeAngle;
     private RaycastHit slopeHit;
+    [SerializeField] private bool exitingSlope;
 
     [Header("Oritentation")]
     [SerializeField] private Transform orientation;
-    
+
     //Internal event based movement variables
     private Vector2 move;
     private float jump;
@@ -67,10 +68,8 @@ public class RigidBodyMovement : MonoBehaviour
 
     private void Update()
     {
-        //Ground Check
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundMask);
-
         //Run checks
+        GroundCheck();
         SpeedControl();
         StateHandler();
 
@@ -128,13 +127,13 @@ public class RigidBodyMovement : MonoBehaviour
         moveDirection = orientation.forward * move.y + orientation.right * move.x;
 
         //Player is on a slope
-        if (OnSlope())
+        if (OnSlope() && !exitingSlope) //Checks player is on slope and not exiting the slope
         {
             rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
 
             if (rb.velocity.y > 0)
             {
-                rb.AddForce(Vector3.down * 80f, ForceMode.Force);
+                rb.AddForce(Vector3.down * 150f, ForceMode.Force);
             }
         }
 
@@ -152,12 +151,23 @@ public class RigidBodyMovement : MonoBehaviour
 
     private void SpeedControl()
     {
-        Vector3 flatVelocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
-        if (flatVelocity.magnitude > moveSpeed)
+        //Slope speed limiting
+        if (OnSlope() && !exitingSlope) //Checks player is on slope and not exiting the slope
         {
-            Vector3 limitedVelocity = flatVelocity.normalized * moveSpeed;
-            rb.velocity = new Vector3(limitedVelocity.x, rb.velocity.y, limitedVelocity.z);
+            if (rb.velocity.magnitude > moveSpeed)
+            {
+                rb.velocity = rb.velocity.normalized * moveSpeed;
+            }
+        }
+        else
+        {
+            Vector3 flatVelocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+
+            if (flatVelocity.magnitude > moveSpeed)
+            {
+                Vector3 limitedVelocity = flatVelocity.normalized * moveSpeed;
+                rb.velocity = new Vector3(limitedVelocity.x, rb.velocity.y, limitedVelocity.z);
+            }
         }
     }
 
@@ -165,10 +175,24 @@ public class RigidBodyMovement : MonoBehaviour
     {
         if (isGrounded && jump > 0)
         {
+            exitingSlope = true;
+
             rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+
+            Invoke(nameof(SlopeExit), 0.2f); //Reset the slope exit flag so it can apply appropriate OnSlope() measures
         }
+    }
+
+    private void GroundCheck()
+    {
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundMask);
+    }
+
+    private void SlopeExit()
+    {
+        exitingSlope = false;
     }
 
     private void Crouch()
