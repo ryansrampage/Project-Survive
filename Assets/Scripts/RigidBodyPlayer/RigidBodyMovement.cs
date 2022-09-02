@@ -21,6 +21,16 @@ public class RigidBodyMovement : MonoBehaviour
     [SerializeField] private float crouchYScale;
     private float startYScale;
 
+    [Header("Sliding")]
+    [SerializeField] private float maxSlideTime;
+    [SerializeField] private float slideForce;
+    [SerializeField] private float slideYScale;
+    [SerializeField] private float slideCooldown;
+    [SerializeField] private float slideCooldownTime;
+    private float slideTimer;
+    private bool readyToSlide;
+    public bool sliding; //Change to private (public for testing)
+
     [Header("Grounding")]
     [SerializeField] private float playerHeight;
     public LayerMask groundMask;
@@ -40,6 +50,7 @@ public class RigidBodyMovement : MonoBehaviour
     private float jump;
     private float sprint;
     private float crouch;
+    private float slide;
 
     //RigidBody
     private Rigidbody rb;
@@ -52,6 +63,7 @@ public class RigidBodyMovement : MonoBehaviour
         walking,
         sprinting,
         crouching,
+        sliding,
         aircrouch,
         air
     }
@@ -64,6 +76,10 @@ public class RigidBodyMovement : MonoBehaviour
 
         //Set initial scale (For crouching)
         startYScale = transform.localScale.y;
+
+        //Set initial slide cooldown time
+        slideCooldown = slideCooldownTime;
+        readyToSlide = true;
     }
 
     private void Update()
@@ -72,6 +88,18 @@ public class RigidBodyMovement : MonoBehaviour
         GroundCheck();
         SpeedControl();
         StateHandler();
+        SlideCheck();
+        
+        /*if (!readyToSlide)
+        {
+            slideCooldown -= Time.deltaTime;
+        }
+        
+        if (slideCooldown <= 0)
+        {
+            readyToSlide = true;
+            slideCooldown = slideCooldownTime;
+        } */
 
         //Handles drag
         if (isGrounded)
@@ -90,6 +118,7 @@ public class RigidBodyMovement : MonoBehaviour
         MovePlayer();
         Jump();
         Crouch();
+        SlidingMovement();
     }
 
     private void StateHandler()
@@ -106,11 +135,11 @@ public class RigidBodyMovement : MonoBehaviour
             state = MovementState.walking;
             moveSpeed = walkSpeed;
         }
-        else //In the Air
+        else if (!isGrounded) //In the Air
         {
             state = MovementState.air;
         }
-
+        
         if (crouch > 0 && isGrounded) //Crouching
         {
             state = MovementState.crouching;
@@ -120,6 +149,17 @@ public class RigidBodyMovement : MonoBehaviour
         {
             state = MovementState.aircrouch;
         }
+
+        if (slide > 0 && isGrounded)
+        {
+            state = MovementState.sliding;
+        }
+
+    }
+
+    private void GroundCheck()
+    {
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundMask);
     }
 
     private void MovePlayer()
@@ -133,11 +173,11 @@ public class RigidBodyMovement : MonoBehaviour
 
             if (rb.velocity.y > 0)
             {
-                rb.AddForce(Vector3.down * 150f, ForceMode.Force);
+                rb.AddForce(Vector3.down * 80f, ForceMode.Force);
             }
         }
 
-        if (isGrounded)
+        else if (isGrounded)
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
         }
@@ -185,16 +225,6 @@ public class RigidBodyMovement : MonoBehaviour
         }
     }
 
-    private void GroundCheck()
-    {
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundMask);
-    }
-
-    private void SlopeExit()
-    {
-        exitingSlope = false;
-    }
-
     private void Crouch()
     {
         if (crouch > 0)
@@ -222,6 +252,84 @@ public class RigidBodyMovement : MonoBehaviour
         }
     }
 
+    private void Slide()
+    {
+        if (crouch > 0 && isGrounded && moveSpeed > walkSpeed)
+        {
+            //Scale down and snap to floor
+            transform.localScale = new Vector3(transform.localScale.x, slideYScale, transform.localScale.z);
+            rb.AddForce(Vector3.down * 10f, ForceMode.Impulse);
+
+            //Set the slide timer
+            slideTimer = maxSlideTime;
+
+            //Slide in direction
+            rb.AddForce(moveDirection.normalized * slideForce, ForceMode.Force);
+
+            //Decrement the time
+            slideTimer -= Time.fixedDeltaTime;
+
+            //Stop the slide
+            if (slideTimer <= 0)
+            {
+                StopSlide();
+            }
+        }
+
+    }
+
+    private void SlideCheck()
+    {
+        //If they press the slide button, are sprinting, not sliding, grounded and ready to slide
+        if (slide > 0 && 
+            moveSpeed > walkSpeed && 
+            !sliding &&
+            isGrounded &&
+            readyToSlide)
+        {
+            sliding = true;
+            slideTimer = maxSlideTime;
+            readyToSlide = false;
+        }
+    }
+
+    private void SlidingMovement()
+    {
+        if (sliding)
+        {
+            //Scale player down
+            transform.localScale = new Vector3(transform.localScale.x, slideYScale, transform.localScale.z);
+
+            //Add the force to slide
+            rb.AddForce(moveDirection.normalized * slideForce, ForceMode.Force);
+
+            slideTimer -= Time.fixedDeltaTime;
+
+            if (slideTimer <= 0)
+            {
+                StopSlide();
+            }
+        }
+        else if (slideCooldown != 0)
+        {
+            slideCooldown -= Time.fixedDeltaTime;
+        }
+
+        if (slideCooldown <= 0)
+        {
+            readyToSlide = true;
+            slideCooldown = slideCooldownTime;
+        }
+    }
+
+    private void StopSlide()
+    {
+        sliding = false;
+        //slideCooldown -= Time.fixedDeltaTime;
+        //readyToSlide = true;
+        transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
+    }
+
     private bool OnSlope()
     {
         if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
@@ -238,7 +346,12 @@ public class RigidBodyMovement : MonoBehaviour
         return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
     }
 
-    //Input Event Functions ----------------------------------------
+    private void SlopeExit()
+    {
+        exitingSlope = false;
+    }
+
+    //---------------------------------- Input Event Functions ----------------------------------
     public void OnMove(InputAction.CallbackContext context)
     {
         move = context.ReadValue<Vector2>();
@@ -259,7 +372,12 @@ public class RigidBodyMovement : MonoBehaviour
         crouch = context.ReadValue<float>();
     }
 
-    //Getters & Setters -- Add when necessary
+    public void OnSlide(InputAction.CallbackContext context)
+    {
+        slide = context.ReadValue<float>();
+    }
+
+    //---------------------------------- Getters & Setters -- Add when necessary ----------------------------------
     public float GetMoveSpeed()
     {
         return moveSpeed;
