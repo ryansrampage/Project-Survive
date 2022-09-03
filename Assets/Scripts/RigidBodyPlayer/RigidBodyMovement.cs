@@ -8,9 +8,15 @@ public class RigidBodyMovement : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private float walkSpeed;
     [SerializeField] private float sprintSpeed;
+    [SerializeField] private float slideSpeed;
     [SerializeField] private float groundDrag;
     private Vector3 moveDirection;
     private float moveSpeed;
+    private float desiredMoveSpeed;
+    private float lastDesiredMoveSpeed;
+
+    [SerializeField] private float speedIncreaseMultiplier;
+    [SerializeField] private float slopeIncreaseMultiplier;
 
     [Header("Jumping")]
     [SerializeField] private float jumpForce;
@@ -89,17 +95,17 @@ public class RigidBodyMovement : MonoBehaviour
         SpeedControl();
         StateHandler();
         SlideCheck();
-        
-        /*if (!readyToSlide)
+
+        if (!readyToSlide)
         {
             slideCooldown -= Time.deltaTime;
+
+            if (slideCooldown <= 0)
+            {
+                readyToSlide = true;
+                slideCooldown = slideCooldownTime;
+            }
         }
-        
-        if (slideCooldown <= 0)
-        {
-            readyToSlide = true;
-            slideCooldown = slideCooldownTime;
-        } */
 
         //Handles drag
         if (isGrounded)
@@ -124,37 +130,84 @@ public class RigidBodyMovement : MonoBehaviour
     private void StateHandler()
     {
         //Potentially modify to update based on state instead of doing both in same statement
+        if (sliding)
+        {
+            state = MovementState.sliding;
 
-        if (isGrounded && sprint > 0) //Sprinting
-        {
-            state = MovementState.sprinting;
-            moveSpeed = sprintSpeed;
+            if (OnSlope() && rb.velocity.y < 0.1f)
+            {
+                desiredMoveSpeed = slideSpeed;
+            }
+            else
+            {
+                desiredMoveSpeed = sprintSpeed;
+            }
         }
-        else if (isGrounded) //Walking
-        {
-            state = MovementState.walking;
-            moveSpeed = walkSpeed;
-        }
-        else if (!isGrounded) //In the Air
-        {
-            state = MovementState.air;
-        }
-        
-        if (crouch > 0 && isGrounded) //Crouching
+        else if (crouch > 0 && isGrounded) //Crouching
         {
             state = MovementState.crouching;
-            moveSpeed = crouchSpeed;
+            desiredMoveSpeed = crouchSpeed;
         }
         else if (crouch > 0 && !isGrounded) //Air crouching
         {
             state = MovementState.aircrouch;
         }
 
-        if (slide > 0 && isGrounded)
+        else if (isGrounded && sprint > 0) //Sprinting
         {
-            state = MovementState.sliding;
+            state = MovementState.sprinting;
+            desiredMoveSpeed = sprintSpeed;
+        }
+        else if (isGrounded) //Walking
+        {
+            state = MovementState.walking;
+            desiredMoveSpeed = walkSpeed;
+        }
+        else //In the Air
+        {
+            state = MovementState.air;
+        }
+        
+        //Check if move speed has changed drastically
+        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && moveSpeed != 0)
+        {
+            StopAllCoroutines();
+            StartCoroutine(SmoothlyLerpMoveSpeed());
+        }
+        else
+        {
+            moveSpeed = desiredMoveSpeed;
         }
 
+        lastDesiredMoveSpeed = desiredMoveSpeed;
+    }
+
+    private IEnumerator SmoothlyLerpMoveSpeed()
+    {
+        float time = 0;
+        float difference = Mathf.Abs(desiredMoveSpeed - moveSpeed);
+        float startValue = moveSpeed;
+
+        while (time < difference)
+        {
+            moveSpeed = Mathf.Lerp(startValue, desiredMoveSpeed, time / difference);
+
+            if (OnSlope())
+            {
+                float slopeAngle = Vector3.Angle(Vector3.up, slopeHit.normal);
+                float slopeAngleIncrease = 1 + (slopeAngle / 90f);
+
+                time += Time.deltaTime * speedIncreaseMultiplier * slopeIncreaseMultiplier * slopeAngleIncrease;
+            }
+            else
+            {
+                time += Time.deltaTime * speedIncreaseMultiplier;
+            }
+            
+            yield return null;
+        }
+
+        moveSpeed = desiredMoveSpeed;
     }
 
     private void GroundCheck()
@@ -169,7 +222,7 @@ public class RigidBodyMovement : MonoBehaviour
         //Player is on a slope
         if (OnSlope() && !exitingSlope) //Checks player is on slope and not exiting the slope
         {
-            rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
+            rb.AddForce(GetSlopeMoveDirection(moveDirection) * moveSpeed * 20f, ForceMode.Force);
 
             if (rb.velocity.y > 0)
             {
@@ -252,32 +305,6 @@ public class RigidBodyMovement : MonoBehaviour
         }
     }
 
-    private void Slide()
-    {
-        if (crouch > 0 && isGrounded && moveSpeed > walkSpeed)
-        {
-            //Scale down and snap to floor
-            transform.localScale = new Vector3(transform.localScale.x, slideYScale, transform.localScale.z);
-            rb.AddForce(Vector3.down * 10f, ForceMode.Impulse);
-
-            //Set the slide timer
-            slideTimer = maxSlideTime;
-
-            //Slide in direction
-            rb.AddForce(moveDirection.normalized * slideForce, ForceMode.Force);
-
-            //Decrement the time
-            slideTimer -= Time.fixedDeltaTime;
-
-            //Stop the slide
-            if (slideTimer <= 0)
-            {
-                StopSlide();
-            }
-        }
-
-    }
-
     private void SlideCheck()
     {
         //If they press the slide button, are sprinting, not sliding, grounded and ready to slide
@@ -289,7 +316,6 @@ public class RigidBodyMovement : MonoBehaviour
         {
             sliding = true;
             slideTimer = maxSlideTime;
-            readyToSlide = false;
         }
     }
 
@@ -300,33 +326,29 @@ public class RigidBodyMovement : MonoBehaviour
             //Scale player down
             transform.localScale = new Vector3(transform.localScale.x, slideYScale, transform.localScale.z);
 
-            //Add the force to slide
-            rb.AddForce(moveDirection.normalized * slideForce, ForceMode.Force);
+            if (!OnSlope() || rb.velocity.y > -0.1f)
+            {
+                //Add the force to slide
+                rb.AddForce(moveDirection.normalized * slideForce, ForceMode.Force);
 
-            slideTimer -= Time.fixedDeltaTime;
+                slideTimer -= Time.fixedDeltaTime;
+            }
+            else
+            {
+                rb.AddForce(GetSlopeMoveDirection(moveDirection) * slideForce, ForceMode.Force);
+            }
 
             if (slideTimer <= 0)
             {
                 StopSlide();
             }
         }
-        else if (slideCooldown != 0)
-        {
-            slideCooldown -= Time.fixedDeltaTime;
-        }
-
-        if (slideCooldown <= 0)
-        {
-            readyToSlide = true;
-            slideCooldown = slideCooldownTime;
-        }
     }
 
     private void StopSlide()
     {
         sliding = false;
-        //slideCooldown -= Time.fixedDeltaTime;
-        //readyToSlide = true;
+        readyToSlide = false;
         transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
     }
 
@@ -341,9 +363,9 @@ public class RigidBodyMovement : MonoBehaviour
         return false;
     }
 
-    private Vector3 GetSlopeMoveDirection()
+    private Vector3 GetSlopeMoveDirection(Vector3 direction)
     {
-        return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
+        return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
     }
 
     private void SlopeExit()
@@ -386,5 +408,10 @@ public class RigidBodyMovement : MonoBehaviour
     public Rigidbody GetRigidBody()
     {
         return rb;
+    }
+
+    public MovementState GetMovementState()
+    {
+        return state;
     }
 }

@@ -5,7 +5,8 @@ using TMPro;
 
 public class PlayerGUI : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI playerData;
+    [SerializeField] private TextMeshProUGUI playerSpeed;
+    [SerializeField] private TextMeshProUGUI playerState;
     [SerializeField] private RigidBodyMovement playerMovement;
 
     // Start is called before the first frame update
@@ -17,6 +18,7 @@ public class PlayerGUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        playerData.text = "Speed: " + playerMovement.GetRigidBody().velocity.magnitude;
+        playerSpeed.text = "Speed: " + playerMovement.GetMoveSpeed().ToString();
+        playerState.text = playerMovement.GetMovementState().ToString();
     }
 }
