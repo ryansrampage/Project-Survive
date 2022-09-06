@@ -4865,13 +4865,43 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
+      propertyPath: wallRunForce
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: wallRunSpeed
+      value: 8.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
       propertyPath: maxSlopeAngle
       value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
+      propertyPath: minJumpHeight
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: maxWallRunTime
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: wallMask.m_Bits
+      value: 256
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
       propertyPath: slideCooldownTime
       value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: wallCheckDistance
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}

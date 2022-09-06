@@ -9,14 +9,16 @@ public class RigidBodyMovement : MonoBehaviour
     [SerializeField] private float walkSpeed;
     [SerializeField] private float sprintSpeed;
     [SerializeField] private float slideSpeed;
+    [SerializeField] private float wallRunSpeed;
     [SerializeField] private float groundDrag;
+    [SerializeField] private float speedIncreaseMultiplier;
+    [SerializeField] private float slopeIncreaseMultiplier;
+
+    //Internal speed variables
     private Vector3 moveDirection;
     private float moveSpeed;
     private float desiredMoveSpeed;
     private float lastDesiredMoveSpeed;
-
-    [SerializeField] private float speedIncreaseMultiplier;
-    [SerializeField] private float slopeIncreaseMultiplier;
 
     [Header("Jumping")]
     [SerializeField] private float jumpForce;
@@ -35,7 +37,20 @@ public class RigidBodyMovement : MonoBehaviour
     [SerializeField] private float slideCooldownTime;
     private float slideTimer;
     private bool readyToSlide;
-    public bool sliding; //Change to private (public for testing)
+    private bool sliding;
+
+    [Header("Wallrunning")]
+    public LayerMask wallMask;
+    [SerializeField] private float wallRunForce;
+    [SerializeField] private float maxWallRunTime;
+    private float wallRunTimer;
+    [SerializeField] private float wallCheckDistance;
+    [SerializeField] private float minJumpHeight;
+    private RaycastHit leftWallhit;
+    private RaycastHit rightWallhit;
+    private bool wallLeft;
+    private bool wallRight;
+    public bool wallrunning; //make private later (for testing)
 
     [Header("Grounding")]
     [SerializeField] private float playerHeight;
@@ -68,6 +83,7 @@ public class RigidBodyMovement : MonoBehaviour
     {
         walking,
         sprinting,
+        wallrunning,
         crouching,
         sliding,
         aircrouch,
@@ -92,9 +108,11 @@ public class RigidBodyMovement : MonoBehaviour
     {
         //Run checks
         GroundCheck();
+        CheckForWall();
         SpeedControl();
         StateHandler();
         SlideCheck();
+        WallRunCheck();
 
         if (!readyToSlide)
         {
@@ -125,12 +143,17 @@ public class RigidBodyMovement : MonoBehaviour
         Jump();
         Crouch();
         SlidingMovement();
+        WallRunMovement();
     }
 
     private void StateHandler()
     {
-        //Potentially modify to update based on state instead of doing both in same statement
-        if (sliding)
+        if (wallrunning)
+        {
+            state = MovementState.wallrunning;
+            desiredMoveSpeed = wallRunSpeed;
+        }
+        else if (sliding)
         {
             state = MovementState.sliding;
 
@@ -213,6 +236,11 @@ public class RigidBodyMovement : MonoBehaviour
     private void GroundCheck()
     {
         isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundMask);
+    }
+
+    private bool AboveGround()
+    {
+        return !Physics.Raycast(transform.position, Vector3.down, minJumpHeight, groundMask);
     }
 
     private void MovePlayer()
@@ -350,6 +378,49 @@ public class RigidBodyMovement : MonoBehaviour
         sliding = false;
         readyToSlide = false;
         transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
+    }
+
+    private void WallRunCheck()
+    {
+        if ((wallLeft || wallRight) && move.y > 0 && AboveGround())
+        {
+            wallrunning = true;
+        }
+        else
+        {
+            wallrunning = false;
+        }
+    }
+
+    private void WallRunMovement()
+    {
+        if (wallrunning)
+        {
+            rb.useGravity = false;
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+
+            Vector3 wallNormal = wallRight ? rightWallhit.normal : leftWallhit.normal;
+
+            Vector3 wallForward = Vector3.Cross(wallNormal, transform.up);
+
+            if ((orientation.forward - wallForward).magnitude > (orientation.forward - -wallForward).magnitude)
+            {
+                wallForward = -wallForward;
+            }
+
+            rb.AddForce(wallForward * wallRunForce, ForceMode.Force);
+        }
+    }
+
+    private void StopWallRun()
+    {
+        wallrunning = false;
+    }
+
+    private void CheckForWall()
+    {
+        wallRight = Physics.Raycast(transform.position, orientation.right, out rightWallhit, wallCheckDistance, wallMask);
+        wallLeft = Physics.Raycast(transform.position, -orientation.right, out leftWallhit, wallCheckDistance, wallMask);
     }
 
     private bool OnSlope()
