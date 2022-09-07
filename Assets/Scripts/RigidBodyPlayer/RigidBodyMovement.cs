@@ -43,9 +43,10 @@ public class RigidBodyMovement : MonoBehaviour
     public LayerMask wallMask;
     [SerializeField] private float wallRunForce;
     [SerializeField] private float maxWallRunTime;
-    private float wallRunTimer;
     [SerializeField] private float wallCheckDistance;
     [SerializeField] private float minJumpHeight;
+    [SerializeField] private float wallClimbSpeed;
+    private float wallRunTimer;
     private RaycastHit leftWallhit;
     private RaycastHit rightWallhit;
     private bool wallLeft;
@@ -408,7 +409,23 @@ public class RigidBodyMovement : MonoBehaviour
                 wallForward = -wallForward;
             }
 
+            //Add the wallrun force
             rb.AddForce(wallForward * wallRunForce, ForceMode.Force);
+
+            if (sprint > 0)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, wallClimbSpeed, rb.velocity.z);
+            }
+            if (crouch > 0)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, -wallClimbSpeed, rb.velocity.z);
+            }
+            
+            if (!(wallLeft && move.x > 0) && !(wallRight && move.x < 0))
+            {
+                rb.AddForce(-wallNormal * 100f, ForceMode.Force);
+            }
+            
         }
     }
 
