@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using DG.Tweening;
 
 public class RigidBodyCamera : MonoBehaviour
 {
@@ -10,7 +11,9 @@ public class RigidBodyCamera : MonoBehaviour
     private Vector2 mouseLook;
     private float xRotation;
     private float yRotation;
+
     [SerializeField] private Transform orientation;
+    [SerializeField] private Transform camHolder;
 
     // Start is called before the first frame update
     void Start()
@@ -34,12 +37,23 @@ public class RigidBodyCamera : MonoBehaviour
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
+        //Rotate the camera and the orientation of the player
+        camHolder.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
         orientation.rotation = Quaternion.Euler(0, yRotation, 0);
     }
 
     public void OnLook(InputAction.CallbackContext context)
     {
         mouseLook = context.action.ReadValue<Vector2>();
+    }
+
+    public void DoFov(float endValue)
+    {
+        GetComponent<Camera>().DOFieldOfView(endValue, 0.25f);
+    }
+
+    public void DoTilt(float zTilt)
+    {
+        transform.DOLocalRotate(new Vector3(0, 0, zTilt), 0.25f);
     }
 }

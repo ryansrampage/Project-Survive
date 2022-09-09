@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 
 public class RigidBodyMovement : MonoBehaviour
 {
+    public RigidBodyCamera cam;
+
     [Header("Movement")]
     [SerializeField] private float walkSpeed;
     [SerializeField] private float sprintSpeed;
@@ -33,8 +35,8 @@ public class RigidBodyMovement : MonoBehaviour
     [SerializeField] private float maxSlideTime;
     [SerializeField] private float slideForce;
     [SerializeField] private float slideYScale;
-    [SerializeField] private float slideCooldown;
     [SerializeField] private float slideCooldownTime;
+    private float slideCooldown;
     private float slideTimer;
     private bool readyToSlide;
     private bool sliding;
@@ -45,13 +47,21 @@ public class RigidBodyMovement : MonoBehaviour
     [SerializeField] private float maxWallRunTime;
     [SerializeField] private float wallCheckDistance;
     [SerializeField] private float minJumpHeight;
+    [SerializeField] private float wallJumpUpForce;
+    [SerializeField] private float wallJumpSideForce;
     [SerializeField] private float wallClimbSpeed;
+    [SerializeField] private float exitWallTime;
+    [SerializeField] private bool useGravityWallRun;
+    [SerializeField] private float gravityCounterForce;
+    private float exitWallTimer;
     private float wallRunTimer;
     private RaycastHit leftWallhit;
     private RaycastHit rightWallhit;
     private bool wallLeft;
     private bool wallRight;
-    public bool wallrunning; //make private later (for testing)
+    private bool wallrunning;
+    private bool exitingWall;
+    
 
     [Header("Grounding")]
     [SerializeField] private float playerHeight;
@@ -102,6 +112,7 @@ public class RigidBodyMovement : MonoBehaviour
 
         //Set initial slide cooldown time
         slideCooldown = slideCooldownTime;
+        exitWallTimer = exitWallTime;
         readyToSlide = true;
     }
 
@@ -123,6 +134,17 @@ public class RigidBodyMovement : MonoBehaviour
             {
                 readyToSlide = true;
                 slideCooldown = slideCooldownTime;
+            }
+        }
+
+        if (exitingWall)
+        {
+            exitWallTimer -= Time.deltaTime;
+
+            if (exitWallTimer <= 0)
+            {
+                exitingWall = false;
+                exitWallTimer = exitWallTime;
             }
         }
 
@@ -268,7 +290,10 @@ public class RigidBodyMovement : MonoBehaviour
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
         }
 
-        rb.useGravity = !OnSlope();
+        if (!wallrunning)
+        {
+            rb.useGravity = !OnSlope();
+        }
     }
 
     private void SpeedControl()
@@ -383,13 +408,40 @@ public class RigidBodyMovement : MonoBehaviour
 
     private void WallRunCheck()
     {
-        if ((wallLeft || wallRight) && move.y > 0 && AboveGround())
+        if ((wallLeft || wallRight) && move.y > 0 && AboveGround() && !exitingWall)
         {
+            //One time check to set the camera effects and reset y velocity
+            if (!wallrunning)
+            {
+                //Do camera effects
+                cam.DoFov(100f);
+
+                if (wallLeft)
+                {
+                    cam.DoTilt(-5f);
+                }
+                if (wallRight)
+                {
+                    cam.DoTilt(5f);
+                }
+
+                //Reset y velocity
+                rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            }
+
             wallrunning = true;
         }
         else
         {
+            //One time check to reset the camera values when player is not wall running
+            if (wallrunning)
+            {
+                cam.DoFov(90f);
+                cam.DoTilt(0f);
+            }
+
             wallrunning = false;
+            wallRunTimer = maxWallRunTime;
         }
     }
 
@@ -397,8 +449,7 @@ public class RigidBodyMovement : MonoBehaviour
     {
         if (wallrunning)
         {
-            rb.useGravity = false;
-            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            rb.useGravity = useGravityWallRun;
 
             Vector3 wallNormal = wallRight ? rightWallhit.normal : leftWallhit.normal;
 
@@ -408,6 +459,8 @@ public class RigidBodyMovement : MonoBehaviour
             {
                 wallForward = -wallForward;
             }
+
+            wallRunTimer -= Time.fixedDeltaTime;
 
             //Add the wallrun force
             rb.AddForce(wallForward * wallRunForce, ForceMode.Force);
@@ -421,17 +474,53 @@ public class RigidBodyMovement : MonoBehaviour
                 rb.velocity = new Vector3(rb.velocity.x, -wallClimbSpeed, rb.velocity.z);
             }
             
+            //Add force to stick to walls
             if (!(wallLeft && move.x > 0) && !(wallRight && move.x < 0))
             {
                 rb.AddForce(-wallNormal * 100f, ForceMode.Force);
             }
-            
+
+            //Weaken the gravity effect if they are using it
+            if (useGravityWallRun)
+            {
+                rb.AddForce(transform.up * gravityCounterForce, ForceMode.Force);
+            }
+
+            //Peform a walljump while wallrunning
+            if (jump > 0)
+            {
+                WallJump();
+            }
+
+            if (wallRunTimer <= 0)
+            {
+                StopWallRun();
+            }
         }
+    }
+
+    private void WallJump()
+    {
+        StopWallRun();
+        //exitingWall = true;
+
+        Vector3 wallNormal = wallRight ? rightWallhit.normal : leftWallhit.normal;
+
+        Vector3 forceToApply = transform.up * wallJumpUpForce + wallNormal * wallJumpSideForce;
+
+        //Reset velocity and add the jump force
+        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+        rb.AddForce(forceToApply, ForceMode.Impulse);
     }
 
     private void StopWallRun()
     {
         wallrunning = false;
+        exitingWall = true;
+
+        //Reset Camera effects
+        cam.DoFov(90f);
+        cam.DoTilt(0f);
     }
 
     private void CheckForWall()

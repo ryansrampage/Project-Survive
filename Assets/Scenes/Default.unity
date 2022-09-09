@@ -165,6 +165,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &51617820 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2433117236198536018, guid: 031f1e777b2b80b44ac99d46f131c521,
+    type: 3}
+  m_PrefabInstance: {fileID: 2433117236736565405}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed6e6c2e7a659564695691518d39bfe3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!43 &222852056
 Mesh:
   m_ObjectHideFlags: 0
@@ -4647,6 +4659,12 @@ MonoBehaviour:
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
+--- !u!4 &1860879128 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2433117237223396294, guid: 031f1e777b2b80b44ac99d46f131c521,
+    type: 3}
+  m_PrefabInstance: {fileID: 2433117236736565405}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &2133946873
 Mesh:
   m_ObjectHideFlags: 0
@@ -4820,6 +4838,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
+      propertyPath: cam
+      value: 
+      objectReference: {fileID: 51617820}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
       propertyPath: walkSpeed
       value: 7
       objectReference: {fileID: 0}
@@ -4860,6 +4883,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
+      propertyPath: exitWallTime
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
       propertyPath: maxSlideTime
       value: 0.75
       objectReference: {fileID: 0}
@@ -4895,6 +4923,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
+      propertyPath: wallJumpUpForce
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
       propertyPath: wallMask.m_Bits
       value: 256
       objectReference: {fileID: 0}
@@ -4905,8 +4938,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
+      propertyPath: useGravityWallRun
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
       propertyPath: wallCheckDistance
       value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: wallJumpSideForce
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: gravityCounterForce
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
@@ -5069,6 +5117,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 13400000, guid: 823c55c907e0ce6499e49a780514fe9c,
         type: 2}
+    - target: {fileID: 2433117236198536018, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: camHolder
+      value: 
+      objectReference: {fileID: 1860879128}
+    - target: {fileID: 2433117236198536019, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: near clip plane
+      value: 0.025
+      objectReference: {fileID: 0}
     - target: {fileID: 2433117236358005989, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
       propertyPath: m_RootOrder
