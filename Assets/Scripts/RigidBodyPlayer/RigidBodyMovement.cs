@@ -42,7 +42,6 @@ public class RigidBodyMovement : MonoBehaviour
     private bool sliding;
 
     [Header("Wallrunning")]
-    public LayerMask wallMask;
     [SerializeField] private float wallRunForce;
     [SerializeField] private float maxWallRunTime;
     [SerializeField] private float wallCheckDistance;
@@ -61,11 +60,21 @@ public class RigidBodyMovement : MonoBehaviour
     private bool wallRight;
     private bool wallrunning;
     private bool exitingWall;
-    
+
+    [Header("Climbing")]
+    [SerializeField] private float climbSpeed;
+    [SerializeField] private float maxClimbTime;
+    [SerializeField] private float detectionLength;
+    [SerializeField] private float sphereCastRadius;
+    [SerializeField] private float maxWallLookAngle;
+    private float wallLookAngle;
+    private bool climbing;
+    private float climbTimer;
+    private RaycastHit frontWallHit;
+    private bool wallInFront;
 
     [Header("Grounding")]
     [SerializeField] private float playerHeight;
-    public LayerMask groundMask;
     public bool isGrounded;
     private bool crouchFloorSnap = false;
 
@@ -86,6 +95,10 @@ public class RigidBodyMovement : MonoBehaviour
 
     //RigidBody
     private Rigidbody rb;
+
+    [Header("Masks")]
+    public LayerMask wallMask;
+    public LayerMask groundMask;
 
     [Header("Movement State")]
     public MovementState state;
@@ -359,6 +372,7 @@ public class RigidBodyMovement : MonoBehaviour
         }
     }
 
+    //---------------------------------- Sliding ----------------------------------
     private void SlideCheck()
     {
         //If they press the slide button, are sprinting, not sliding, grounded and ready to slide
@@ -406,6 +420,7 @@ public class RigidBodyMovement : MonoBehaviour
         transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
     }
 
+    //---------------------------------- Wall Running ----------------------------------
     private void WallRunCheck()
     {
         if ((wallLeft || wallRight) && move.y > 0 && AboveGround() && !exitingWall)
@@ -529,6 +544,15 @@ public class RigidBodyMovement : MonoBehaviour
         wallLeft = Physics.Raycast(transform.position, -orientation.right, out leftWallhit, wallCheckDistance, wallMask);
     }
 
+    //---------------------------------- Wall Climbing ----------------------------------
+
+    private void WallCheck()
+    {
+        wallInFront = Physics.SphereCast(transform.position, sphereCastRadius, orientation.forward, out frontWallHit, detectionLength, wallMask);
+        wallLookAngle = Vector3.Angle(orientation.forward, -frontWallHit.normal);
+    }
+
+    //---------------------------------- Slopes ----------------------------------
     private bool OnSlope()
     {
         if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
