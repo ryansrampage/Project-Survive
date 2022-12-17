@@ -4848,6 +4848,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
+      propertyPath: climbSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
       propertyPath: groundDrag
       value: 4
       objectReference: {fileID: 0}
@@ -4888,6 +4893,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
+      propertyPath: maxClimbTime
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
       propertyPath: maxSlideTime
       value: 0.75
       objectReference: {fileID: 0}
@@ -4923,6 +4933,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
+      propertyPath: detectionLength
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
       propertyPath: wallJumpUpForce
       value: 12
       objectReference: {fileID: 0}
@@ -4930,6 +4945,21 @@ PrefabInstance:
         type: 3}
       propertyPath: wallMask.m_Bits
       value: 256
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: climbStrafeSpeed
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: maxWallLookAngle
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: sphereCastRadius
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}

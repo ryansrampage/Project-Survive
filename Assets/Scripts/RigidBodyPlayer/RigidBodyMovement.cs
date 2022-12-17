@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -67,6 +68,7 @@ public class RigidBodyMovement : MonoBehaviour
     [SerializeField] private float detectionLength;
     [SerializeField] private float sphereCastRadius;
     [SerializeField] private float maxWallLookAngle;
+    [SerializeField] private float climbStrafeSpeed;
     private float wallLookAngle;
     private bool climbing;
     private float climbTimer;
@@ -108,6 +110,7 @@ public class RigidBodyMovement : MonoBehaviour
         walking,
         sprinting,
         wallrunning,
+        climbing,
         crouching,
         sliding,
         aircrouch,
@@ -134,10 +137,13 @@ public class RigidBodyMovement : MonoBehaviour
         //Run checks
         GroundCheck();
         CheckForWall();
+        WallCheck();
+        WallClimbTimerReset();
         SpeedControl();
         StateHandler();
         SlideCheck();
         WallRunCheck();
+        WallClimbCheck();
 
         if (!readyToSlide)
         {
@@ -180,11 +186,17 @@ public class RigidBodyMovement : MonoBehaviour
         Crouch();
         SlidingMovement();
         WallRunMovement();
+        ClimbingMovement();
     }
 
     private void StateHandler()
     {
-        if (wallrunning)
+        if (climbing)
+        {
+            state = MovementState.climbing;
+            desiredMoveSpeed = climbStrafeSpeed;
+        }
+        else if (wallrunning)
         {
             state = MovementState.wallrunning;
             desiredMoveSpeed = wallRunSpeed;
@@ -226,7 +238,7 @@ public class RigidBodyMovement : MonoBehaviour
         {
             state = MovementState.air;
         }
-        
+
         //Check if move speed has changed drastically
         if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && moveSpeed != 0)
         {
@@ -262,7 +274,7 @@ public class RigidBodyMovement : MonoBehaviour
             {
                 time += Time.deltaTime * speedIncreaseMultiplier;
             }
-            
+
             yield return null;
         }
 
@@ -361,7 +373,7 @@ public class RigidBodyMovement : MonoBehaviour
             {
                 crouchFloorSnap = true;
             }
-            
+
         }
         else
         {
@@ -376,8 +388,8 @@ public class RigidBodyMovement : MonoBehaviour
     private void SlideCheck()
     {
         //If they press the slide button, are sprinting, not sliding, grounded and ready to slide
-        if (slide > 0 && 
-            moveSpeed > walkSpeed && 
+        if (slide > 0 &&
+            moveSpeed > walkSpeed &&
             !sliding &&
             isGrounded &&
             readyToSlide)
@@ -488,7 +500,7 @@ public class RigidBodyMovement : MonoBehaviour
             {
                 rb.velocity = new Vector3(rb.velocity.x, -wallClimbSpeed, rb.velocity.z);
             }
-            
+
             //Add force to stick to walls
             if (!(wallLeft && move.x > 0) && !(wallRight && move.x < 0))
             {
@@ -550,6 +562,44 @@ public class RigidBodyMovement : MonoBehaviour
     {
         wallInFront = Physics.SphereCast(transform.position, sphereCastRadius, orientation.forward, out frontWallHit, detectionLength, wallMask);
         wallLookAngle = Vector3.Angle(orientation.forward, -frontWallHit.normal);
+    }
+
+    private void WallClimbTimerReset()
+    {
+        if (isGrounded) climbTimer = maxClimbTime;
+    }
+
+    private void WallClimbCheck()
+    {
+        if (wallInFront && move.y > 0 && wallLookAngle < maxWallLookAngle && climbTimer > 0)
+        {
+            climbing = true;
+        }
+        else
+        {
+            climbing = false;
+        }
+    }
+
+    private void ClimbingMovement()
+    {
+        if (climbing)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, climbSpeed, rb.velocity.z);
+
+            climbTimer -= Time.fixedDeltaTime;
+
+            if (climbTimer <= 0)
+            {
+                StopClimbing();
+            }
+        }
+        
+    }
+
+    private void StopClimbing()
+    {
+        climbing = false;
     }
 
     //---------------------------------- Slopes ----------------------------------
