@@ -71,9 +71,15 @@ public class RigidBodyMovement : MonoBehaviour
     [SerializeField] private float climbStrafeSpeed;
     private float wallLookAngle;
     private bool climbing;
-    private float climbTimer;
+    public float climbTimer;
     private RaycastHit frontWallHit;
     private bool wallInFront;
+
+    [Header("ClimbJumping")]
+    [SerializeField] private float climbJumpUpForce;
+    [SerializeField] private float climbJumpBackForce;
+    [SerializeField] private int climbJumps;
+    private int climbJumpsLeft;
 
     [Header("Grounding")]
     [SerializeField] private float playerHeight;
@@ -101,6 +107,12 @@ public class RigidBodyMovement : MonoBehaviour
     [Header("Masks")]
     public LayerMask wallMask;
     public LayerMask groundMask;
+
+    //Wall storage
+    private Transform lastWall;
+    private Vector3 lastWallNormal;
+    private bool newWall;
+    public float minWallNormalAngleChange;
 
     [Header("Movement State")]
     public MovementState state;
@@ -138,7 +150,7 @@ public class RigidBodyMovement : MonoBehaviour
         GroundCheck();
         CheckForWall();
         WallCheck();
-        WallClimbTimerReset();
+        WallClimbReset();
         SpeedControl();
         StateHandler();
         SlideCheck();
@@ -562,11 +574,18 @@ public class RigidBodyMovement : MonoBehaviour
     {
         wallInFront = Physics.SphereCast(transform.position, sphereCastRadius, orientation.forward, out frontWallHit, detectionLength, wallMask);
         wallLookAngle = Vector3.Angle(orientation.forward, -frontWallHit.normal);
+
+        newWall = frontWallHit.transform != lastWall || 
+                       Mathf.Abs(Vector3.Angle(lastWallNormal, frontWallHit.normal)) > minWallNormalAngleChange;
     }
 
-    private void WallClimbTimerReset()
+    private void WallClimbReset()
     {
-        if (isGrounded) climbTimer = maxClimbTime;
+        if (isGrounded || (wallInFront && newWall))
+        {
+            climbTimer = maxClimbTime;
+            climbJumpsLeft = climbJumps;
+        }
     }
 
     private void WallClimbCheck()
@@ -574,6 +593,8 @@ public class RigidBodyMovement : MonoBehaviour
         if (wallInFront && move.y > 0 && wallLookAngle < maxWallLookAngle && climbTimer > 0)
         {
             climbing = true;
+            lastWall = frontWallHit.transform;
+            lastWallNormal = frontWallHit.normal;
         }
         else
         {
@@ -585,6 +606,11 @@ public class RigidBodyMovement : MonoBehaviour
     {
         if (climbing)
         {
+            if (jump > 0 && climbJumpsLeft > 0)
+            {
+                ClimbJump();
+            }
+
             rb.velocity = new Vector3(rb.velocity.x, climbSpeed, rb.velocity.z);
 
             climbTimer -= Time.fixedDeltaTime;
@@ -600,6 +626,18 @@ public class RigidBodyMovement : MonoBehaviour
     private void StopClimbing()
     {
         climbing = false;
+    }
+
+    //---------------------------------- Wall Jumping ----------------------------------
+
+    private void ClimbJump()
+    {
+        Vector3 forceToApply = transform.up * climbJumpUpForce + frontWallHit.normal * climbJumpBackForce;
+
+        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+        rb.AddForce(forceToApply, ForceMode.Impulse);
+
+        climbJumpsLeft--;
     }
 
     //---------------------------------- Slopes ----------------------------------

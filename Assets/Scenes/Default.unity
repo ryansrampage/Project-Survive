@@ -1098,7 +1098,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 743057613}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 1ecbb274d25de6f4eb93ff68db04130f, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -4848,6 +4848,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
+      propertyPath: climbJumps
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
       propertyPath: climbSpeed
       value: 10
       objectReference: {fileID: 0}
@@ -4948,6 +4953,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
+      propertyPath: climbJumpUpForce
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
       propertyPath: climbStrafeSpeed
       value: 3
       objectReference: {fileID: 0}
@@ -4983,6 +4993,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
+      propertyPath: climbJumpBackForce
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
       propertyPath: gravityCounterForce
       value: 25
       objectReference: {fileID: 0}
@@ -4995,6 +5010,11 @@ PrefabInstance:
         type: 3}
       propertyPath: speedIncreaseMultiplier
       value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: minWallNormalAngleChange
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2433117235569062036, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
