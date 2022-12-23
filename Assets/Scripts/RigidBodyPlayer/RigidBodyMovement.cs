@@ -151,7 +151,7 @@ public class RigidBodyMovement : MonoBehaviour
         CheckForWall();
         WallCheck();
         WallClimbReset();
-        SpeedControl();
+        
         StateHandler();
         SlideCheck();
         WallRunCheck();
@@ -194,6 +194,7 @@ public class RigidBodyMovement : MonoBehaviour
     void FixedUpdate()
     {
         MovePlayer();
+        SpeedControl();
         Jump();
         Crouch();
         SlidingMovement();
@@ -346,7 +347,7 @@ public class RigidBodyMovement : MonoBehaviour
         else
         {
             Vector3 flatVelocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
+            
             if (flatVelocity.magnitude > moveSpeed)
             {
                 Vector3 limitedVelocity = flatVelocity.normalized * moveSpeed;
@@ -362,7 +363,6 @@ public class RigidBodyMovement : MonoBehaviour
             exitingSlope = true;
 
             rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
 
             Invoke(nameof(SlopeExit), 0.2f); //Reset the slope exit flag so it can apply appropriate OnSlope() measures
@@ -541,7 +541,6 @@ public class RigidBodyMovement : MonoBehaviour
     private void WallJump()
     {
         StopWallRun();
-        //exitingWall = true;
 
         Vector3 wallNormal = wallRight ? rightWallhit.normal : leftWallhit.normal;
 
@@ -590,7 +589,7 @@ public class RigidBodyMovement : MonoBehaviour
 
     private void WallClimbCheck()
     {
-        if (wallInFront && move.y > 0 && wallLookAngle < maxWallLookAngle && climbTimer > 0)
+        if (wallInFront && move.y > 0 && wallLookAngle < maxWallLookAngle && climbTimer > 0 && !exitingWall)
         {
             climbing = true;
             lastWall = frontWallHit.transform;
@@ -626,14 +625,17 @@ public class RigidBodyMovement : MonoBehaviour
     private void StopClimbing()
     {
         climbing = false;
+        exitingWall = true;
     }
 
     //---------------------------------- Wall Jumping ----------------------------------
 
     private void ClimbJump()
     {
-        Vector3 forceToApply = transform.up * climbJumpUpForce + frontWallHit.normal * climbJumpBackForce;
+        exitingWall = true;
+        //Vector3 forceToApply = lastWall.up * climbJumpUpForce + frontWallHit.normal * climbJumpBackForce;
 
+        Vector3 forceToApply = new Vector3(0f, 100f, 0f);
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         rb.AddForce(forceToApply, ForceMode.Impulse);
 
