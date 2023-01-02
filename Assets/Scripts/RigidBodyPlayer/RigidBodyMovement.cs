@@ -151,7 +151,7 @@ public class RigidBodyMovement : MonoBehaviour
         CheckForWall();
         WallCheck();
         WallClimbReset();
-        
+        //SpeedControl();
         StateHandler();
         SlideCheck();
         WallRunCheck();
@@ -633,9 +633,9 @@ public class RigidBodyMovement : MonoBehaviour
     private void ClimbJump()
     {
         exitingWall = true;
-        //Vector3 forceToApply = lastWall.up * climbJumpUpForce + frontWallHit.normal * climbJumpBackForce;
+        Vector3 forceToApply = lastWall.up * climbJumpUpForce + frontWallHit.normal * climbJumpBackForce;
 
-        Vector3 forceToApply = new Vector3(0f, 100f, 0f);
+        //Vector3 forceToApply = new Vector3(0f, 100f, 0f);
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         rb.AddForce(forceToApply, ForceMode.Impulse);
 
