@@ -156,16 +156,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25b9539af8607f740a655e08acb3f544, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 7
-  groundDrag: 5
+  cam: {fileID: 2433117236198536018}
+  walkSpeed: 7
+  sprintSpeed: 10
+  slideSpeed: 30
+  wallRunSpeed: 15
+  groundDrag: 4
+  speedIncreaseMultiplier: 1.5
+  slopeIncreaseMultiplier: 2.5
   jumpForce: 12
   airMultiplier: 0.4
+  crouchSpeed: 3.5
+  crouchYScale: 0.5
+  maxSlideTime: 0.75
+  slideForce: 200
+  slideYScale: 0.5
+  slideCooldownTime: 0.75
+  wallRunForce: 200
+  maxWallRunTime: 1.5
+  wallCheckDistance: 0.7
+  minJumpHeight: 2
+  wallJumpUpForce: 12
+  wallJumpSideForce: 20
+  wallClimbSpeed: 3
+  exitWallTime: 0.2
+  useGravityWallRun: 1
+  gravityCounterForce: 25
+  climbSpeed: 10
+  maxClimbTime: 0.75
+  detectionLength: 0.7
+  sphereCastRadius: 0.25
+  maxWallLookAngle: 30
+  climbStrafeSpeed: 3
+  climbTimer: 0
+  climbJumpUpForce: 5
+  climbJumpBackForce: 5
+  climbJumps: 1
   playerHeight: 2
+  isGrounded: 0
+  maxSlopeAngle: 40
+  exitingSlope: 0
+  orientation: {fileID: 2433117236571493205}
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 768
   groundMask:
     serializedVersion: 2
-    m_Bits: 256
-  isGrounded: 0
-  orientation: {fileID: 2433117236571493205}
+    m_Bits: 768
+  minWallNormalAngleChange: 5
+  state: 0
 --- !u!1 &2433117235857029414
 GameObject:
   m_ObjectHideFlags: 0
@@ -363,6 +402,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mouseSens: 0.1
   orientation: {fileID: 2433117236571493205}
+  camHolder: {fileID: 0}
 --- !u!1 &2433117236358005994
 GameObject:
   m_ObjectHideFlags: 0
