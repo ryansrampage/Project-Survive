@@ -6,146 +6,111 @@ using UnityEngine.InputSystem;
 
 public class RigidBodyMovement : MonoBehaviour
 {
+    [Header("Camera script")]
     public RigidBodyCamera cam;
 
-    [Header("Speed")]
-    [SerializeField] private float walkSpeed; //SPEED 
-    [SerializeField] private float sprintSpeed; //SPEED
-    [SerializeField] private float slideSpeed; //SPEED
-    [SerializeField] private float wallRunSpeed; //SPEED
-    [SerializeField] private float groundDrag; //SPEED
-    [SerializeField] private float speedIncreaseMultiplier; //SPEED
-    [SerializeField] private float slopeIncreaseMultiplier; //SPEED
-    [SerializeField] private float crouchSpeed; //SPEED
-    [SerializeField] private float airMultiplier; //SPEED
-    [SerializeField] private float wallClimbSpeed; //SPEED
-    [SerializeField] private float climbSpeed; //SPEED
-
-    [Header("Jumping")]
-    [SerializeField] private float jumpForce; //JUMP
-
-    [Header("Timers")]
-    [SerializeField] private float maxSlideTime; //TIMER
-    [SerializeField] private float slideCooldownTime; //TIMER
-    private float slideTimer; //TIMER
-    [SerializeField] private float maxWallRunTime; //TIMER
-    [SerializeField] private float exitWallTime; //TIMER
-    private float exitWallTimer; //TIMER
-    private float wallRunTimer; //TIMER
-    [SerializeField] private float maxClimbTime; //TIMER
-    public float climbTimer; //TIMER
-
-    //Internal speed variables
-    private Vector3 moveDirection; //PRIVATE VAR
-    private float moveSpeed; //PRIVATE VAR
-    private float desiredMoveSpeed; //PRIVATE VAR
-    private float lastDesiredMoveSpeed; //PRIVATE VAR
-
-    
-    
-
-    [Header("Crouching")]
-    
-    [SerializeField] private float crouchYScale; //CROUCHING
-    private float startYScale; //PRIVATE VAR
-
-    [Header("Sliding")]
-    
-    [SerializeField] private float slideForce; //SLIDING
-    [SerializeField] private float slideYScale; //SLIDING
-    
-    private float slideCooldown; //SLIDING
-    
-    private bool readyToSlide; //DETECTION
-    private bool sliding; //DETECTION
-
-    [Header("Wallrunning")]
-    [SerializeField] private float wallRunForce; //WALL INTERACTION
-    
-    [SerializeField] private float wallCheckDistance; //DETECTION
-    [SerializeField] private float minJumpHeight; //DETECTION
-    [SerializeField] private float wallJumpUpForce; //WALL INTERACTION
-    [SerializeField] private float wallJumpSideForce; //WALL INTERACTION
-    
-    
-    [SerializeField] private bool useGravityWallRun; //WALL INTERACTION
-    [SerializeField] private float gravityCounterForce; //WALL INTERACTION
-    
-    
-    private RaycastHit leftWallhit; //DETECTION
-    private RaycastHit rightWallhit; //DETECTION
-    private bool wallLeft; //DETECTION
-    private bool wallRight; //DETECTION
-    private bool wallrunning; //DETECTION
-    private bool exitingWall; //DETECTION
-
-    [Header("Climbing")]
-    
-    
-    [SerializeField] private float detectionLength; //DETECTION 
-    [SerializeField] private float sphereCastRadius; //DETECTION
-    [SerializeField] private float maxWallLookAngle; //DETECTION
-    [SerializeField] private float climbStrafeSpeed; //WALL INTERACTION
-    private float wallLookAngle; //DETECTION
-    private bool climbing; //DETECTION
-    
-    private RaycastHit frontWallHit; //DETECTION
-    private bool wallInFront; //DETECTION
-
-    [Header("ClimbJumping")]
-    [SerializeField] private float climbJumpUpForce; //WALL INTERACTION
-    [SerializeField] private float climbJumpBackForce; //WALL INTERACTION
-    [SerializeField] private int climbJumps; //WALL INTERACTION
-    private int climbJumpsLeft; //WALL INTERACTION
-
-    [Header("Grounding")]
-    [SerializeField] private float playerHeight; //DETECTION
-    public bool isGrounded; //DETECTION
-    private bool crouchFloorSnap = false; //DETECTION
-
-    [Header("Slope Handler")]
-    [SerializeField] private float maxSlopeAngle; //DETECTION
-    private RaycastHit slopeHit; //DETECTION
-    [SerializeField] private bool exitingSlope; //DETECTION
-
     [Header("Oritentation")]
-    [SerializeField] private Transform orientation; //??
-
-    //Internal event based movement variables
-    private Vector2 move; //INPUT SYS VARS
-    private float jump; //INPUT SYS VARS
-    private float sprint; //INPUT SYS VARS
-    private float crouch; //INPUT SYS VARS
-    private float slide; //INPUT SYS VARS
-
-    //RigidBody
-    private Rigidbody rb; //PRIVATE VAR
+    [SerializeField] private Transform orientation;
 
     [Header("Masks")]
-    public LayerMask wallMask; //MASKS
-    public LayerMask groundMask; //MASKS
+    public LayerMask wallMask;
+    public LayerMask groundMask; 
 
-    //Wall storage
-    private Transform lastWall; //DETECTION
-    private Vector3 lastWallNormal; //DETECTION
-    private bool newWall; //DETECTION
-    public float minWallNormalAngleChange; //WALL INTERACTION
+    [Header("Speed")]
+    [SerializeField] private float walkSpeed; 
+    [SerializeField] private float sprintSpeed; 
+    [SerializeField] private float slideSpeed; 
+    [SerializeField] private float wallRunSpeed; 
+    [SerializeField] private float groundDrag; 
+    [SerializeField] private float speedIncreaseMultiplier; 
+    [SerializeField] private float slopeIncreaseMultiplier; 
+    [SerializeField] private float crouchSpeed; 
+    [SerializeField] private float airMultiplier; 
+    [SerializeField] private float wallClimbSpeed; 
+    [SerializeField] private float climbSpeed;
 
-    //BIG TO DO LIST -- RESTRUCTURE ALL THE VARIABLES INTO A MORE COHESIVE SET
-    //LIST 1: SPEED
-    //LIST 2: DETECTION
-    //LIST 3: JUMPING
-    //LIST 4: SLIDING
-    //LIST 5: CROUCHING
-    //LIST 6: WALL INTERACTIONS
-    //LIST 7: TIMERS
-    //LIST 8: PRIVATE VARS
-    //LIST 9: CUSTOMISATION
-    //LIST 10: INPUT SYS VARS
-    //LIST 11: MASKS
+    [Header("Jumping")]
+    [SerializeField] private float jumpForce; 
+
+    [Header("Crouching")]
+    [SerializeField] private float crouchYScale; 
+
+    [Header("Sliding")]
+    [SerializeField] private float slideForce; 
+    [SerializeField] private float slideYScale; 
+    
+    [Header("Timers")]
+    [SerializeField] private float maxSlideTime; 
+    [SerializeField] private float slideCooldownTime; 
+    [SerializeField] private float maxWallRunTime; 
+    [SerializeField] private float exitWallTime; 
+    [SerializeField] private float maxClimbTime; 
+    private float climbTimer; 
+    private float slideTimer; 
+    private float slideCooldown; 
+    private float wallRunTimer; 
+    private float exitWallTimer; 
+    
+    [Header("Detection")]
+    [SerializeField] private bool isGrounded;
+    [SerializeField] private float playerHeight; 
+    [SerializeField] private float maxSlopeAngle; 
+    [SerializeField] private float wallCheckDistance; 
+    [SerializeField] private float minJumpHeight; 
+    [SerializeField] private float detectionLength; 
+    [SerializeField] private float sphereCastRadius; 
+    [SerializeField] private float maxWallLookAngle; 
+    private bool crouchFloorSnap; 
+    private float wallLookAngle; 
+    private Transform lastWall; 
+    private Vector3 lastWallNormal; 
+    private bool newWall; 
+    private bool wallInFront; 
+    private bool wallLeft; 
+    private bool wallRight; 
+    private RaycastHit slopeHit; 
+    private RaycastHit leftWallhit; 
+    private RaycastHit rightWallhit; 
+    private RaycastHit frontWallHit; 
+
+    [Header("Action Based Detection")]
+    [SerializeField] private bool readyToSlide; 
+    [SerializeField] private bool sliding; 
+    [SerializeField] private bool wallrunning; 
+    [SerializeField] private bool exitingWall; 
+    [SerializeField] private bool exitingSlope; 
+    [SerializeField] private bool climbing; 
+
+    [Header("Wall Interaction")]
+    [SerializeField] private float wallRunForce; 
+    [SerializeField] private float wallJumpUpForce; 
+    [SerializeField] private float wallJumpSideForce; 
+    [SerializeField] private bool useGravityWallRun; 
+    [SerializeField] private float gravityCounterForce; 
+    [SerializeField] private float climbStrafeSpeed; 
+    [SerializeField] private float climbJumpUpForce; 
+    [SerializeField] private float climbJumpBackForce; 
+    [SerializeField] private int climbJumps; 
+    [SerializeField] private float minWallNormalAngleChange; 
+    private int climbJumpsLeft; 
 
     [Header("Movement State")]
     public MovementState state;
+
+    //PRIVATE VARIABLES (ONLY EXPOSE WHEN DEBUGGING)
+    private Vector3 moveDirection;
+    private float moveSpeed; 
+    private float desiredMoveSpeed; 
+    private float lastDesiredMoveSpeed; 
+    private float startYScale; 
+    private Rigidbody rb; 
+
+    //INTERNAL EVENT BASED MOVEMENT VARIABLES
+    private Vector2 move; 
+    private float jump; 
+    private float sprint; 
+    private float crouch; 
+    private float slide;
 
     public enum MovementState
     {
@@ -162,11 +127,13 @@ public class RigidBodyMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //Get rigidbody component and freeze rotation
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
         //Set initial scale (For crouching)
         startYScale = transform.localScale.y;
+        crouchFloorSnap = false;
 
         //Set initial slide cooldown time
         slideCooldown = slideCooldownTime;
@@ -178,10 +145,11 @@ public class RigidBodyMovement : MonoBehaviour
     {
         //Run checks
         GroundCheck();
+        Debug.Log(OnSlope());
         CheckForWall();
+        SpeedControl();
         WallCheck();
         WallClimbReset();
-        //SpeedControl();
         StateHandler();
         SlideCheck();
         WallRunCheck();
@@ -224,7 +192,7 @@ public class RigidBodyMovement : MonoBehaviour
     void FixedUpdate()
     {
         MovePlayer();
-        SpeedControl();
+        //SpeedControl();
         Jump();
         Crouch();
         SlidingMovement();
@@ -341,7 +309,7 @@ public class RigidBodyMovement : MonoBehaviour
         //Player is on a slope
         if (OnSlope() && !exitingSlope) //Checks player is on slope and not exiting the slope
         {
-            rb.AddForce(GetSlopeMoveDirection(moveDirection) * moveSpeed * 20f, ForceMode.Force);
+            rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
 
             if (rb.velocity.y > 0)
             {
@@ -369,13 +337,16 @@ public class RigidBodyMovement : MonoBehaviour
         //Slope speed limiting
         if (OnSlope() && !exitingSlope) //Checks player is on slope and not exiting the slope
         {
+            Debug.Log("I'm here");
             if (rb.velocity.magnitude > moveSpeed)
             {
                 rb.velocity = rb.velocity.normalized * moveSpeed;
             }
+            
         }
         else
         {
+            
             Vector3 flatVelocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
             
             if (flatVelocity.magnitude > moveSpeed)
@@ -383,6 +354,8 @@ public class RigidBodyMovement : MonoBehaviour
                 Vector3 limitedVelocity = flatVelocity.normalized * moveSpeed;
                 rb.velocity = new Vector3(limitedVelocity.x, rb.velocity.y, limitedVelocity.z);
             }
+
+            
         }
     }
 
@@ -457,7 +430,7 @@ public class RigidBodyMovement : MonoBehaviour
             }
             else
             {
-                rb.AddForce(GetSlopeMoveDirection(moveDirection) * slideForce, ForceMode.Force);
+                rb.AddForce(GetSlopeMoveDirection() * slideForce, ForceMode.Force);
             }
 
             if (slideTimer <= 0)
@@ -675,18 +648,22 @@ public class RigidBodyMovement : MonoBehaviour
     //---------------------------------- Slopes ----------------------------------
     private bool OnSlope()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
+        if (Physics.Raycast(rb.transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.5f))
         {
             float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
             return angle < maxSlopeAngle && angle != 0;
+        } 
+        else
+        {
+            return false;
         }
 
-        return false;
+        
     }
 
-    private Vector3 GetSlopeMoveDirection(Vector3 direction)
+    private Vector3 GetSlopeMoveDirection()
     {
-        return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
+        return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
     }
 
     private void SlopeExit()

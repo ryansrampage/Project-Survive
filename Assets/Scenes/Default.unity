@@ -532,7 +532,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh32954
+  m_Name: pb_Mesh21576
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1007,7 +1007,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1078423669}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 50.3, y: -3, z: 22.995766}
+  m_LocalPosition: {x: 48.7, y: -2.5, z: 51}
   m_LocalScale: {x: 1, y: 5, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4827,7 +4827,17 @@ PrefabInstance:
     - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
       propertyPath: climbSpeed
-      value: 100
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: sprintSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 376156326249061900, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: climbJumpBackForce
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2433117235569062036, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
@@ -4974,6 +4984,21 @@ PrefabInstance:
       propertyPath: m_ActionEvents.Array.data[6].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 2433117235569062037, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2433117235569062042, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -16.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2433117235569062042, guid: 031f1e777b2b80b44ac99d46f131c521,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 84.6
+      objectReference: {fileID: 0}
     - target: {fileID: 2433117235857029408, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
       propertyPath: m_Material
@@ -4998,17 +5023,17 @@ PrefabInstance:
     - target: {fileID: 2433117236358005989, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.29
+      value: 47.5
       objectReference: {fileID: 0}
     - target: {fileID: 2433117236358005989, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.79
+      value: 72.2
       objectReference: {fileID: 0}
     - target: {fileID: 2433117236358005989, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.23
+      value: 94.1
       objectReference: {fileID: 0}
     - target: {fileID: 2433117236358005989, guid: 031f1e777b2b80b44ac99d46f131c521,
         type: 3}
