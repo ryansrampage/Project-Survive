@@ -334,7 +334,7 @@ public class RigidBodyMovement : MonoBehaviour
     private void SpeedControl()
     {
         //Slope speed limiting
-        if (OnSlope() && !exitingSlope) //Checks player is on slope and not exiting the slope
+        if (OnSlope() && !exitingSlope && isGrounded) //Checks player is on slope and not exiting the slope
         {
             Debug.Log("I'm here");
             if (rb.velocity.magnitude > moveSpeed)
@@ -644,10 +644,10 @@ public class RigidBodyMovement : MonoBehaviour
     //---------------------------------- Slopes ----------------------------------
     private bool OnSlope()
     {
-        if (Physics.Raycast(rb.transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.4f))
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight / 2f + 0.5f) && isGrounded)
         {
             float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
-            return angle < maxSlopeAngle && angle != 0;
+            return angle < maxSlopeAngle && angle != 0f;
         } 
         else
         {
