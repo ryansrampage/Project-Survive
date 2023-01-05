@@ -192,7 +192,6 @@ public class RigidBodyMovement : MonoBehaviour
     void FixedUpdate()
     {
         MovePlayer();
-        //SpeedControl();
         Jump();
         Crouch();
         SlidingMovement();
@@ -346,7 +345,6 @@ public class RigidBodyMovement : MonoBehaviour
         }
         else
         {
-            
             Vector3 flatVelocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
             
             if (flatVelocity.magnitude > moveSpeed)
@@ -354,8 +352,6 @@ public class RigidBodyMovement : MonoBehaviour
                 Vector3 limitedVelocity = flatVelocity.normalized * moveSpeed;
                 rb.velocity = new Vector3(limitedVelocity.x, rb.velocity.y, limitedVelocity.z);
             }
-
-            
         }
     }
 
@@ -648,7 +644,7 @@ public class RigidBodyMovement : MonoBehaviour
     //---------------------------------- Slopes ----------------------------------
     private bool OnSlope()
     {
-        if (Physics.Raycast(rb.transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.5f))
+        if (Physics.Raycast(rb.transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.4f))
         {
             float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
             return angle < maxSlopeAngle && angle != 0;
@@ -657,8 +653,6 @@ public class RigidBodyMovement : MonoBehaviour
         {
             return false;
         }
-
-        
     }
 
     private Vector3 GetSlopeMoveDirection()
